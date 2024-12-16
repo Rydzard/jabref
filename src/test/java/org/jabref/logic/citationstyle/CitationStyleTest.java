@@ -100,7 +100,6 @@ class CitationStyleTest {
                 Arguments.of(true, "nature.csl")
         );
     }
-
     
     @Test
     void testStripInvalidProlog() {
@@ -122,7 +121,7 @@ class CitationStyleTest {
     }
 
     @Test
-    void testValidStyleInfo() {
+    void testParseStyleInfoIsParsed() {
         String content = """
                     <style>
                         <info>
@@ -136,19 +135,25 @@ class CitationStyleTest {
         Optional<CitationStyle.StyleInfo> result = parseStyleInfo(filename, content);
 
         assertTrue(result.isPresent(), "Expected valid style info to be parsed");
-        assertEquals("Valid Title", result.get().title(), "Expected title to match");
-        assertFalse(result.get().isNumericStyle(), "Expected non-numeric style");
     }
 
     @Test
-    void testInvalidStyleInfo() {
-        String content = "<style><info></info></style>"; // Missing title and bibliography
-        String filename = "invalid-style.csl";
+    void testTitleStyleInfo() {
+        String content = """
+                    <style>
+                        <info>
+                            <title>Valid Title</title>
+                        </info>
+                        <bibliography/>
+                    </style>
+                """;
+        String filename = "valid-style.csl";
 
         Optional<CitationStyle.StyleInfo> result = parseStyleInfo(filename, content);
 
-        assertFalse(result.isPresent(), "Expected no valid style info to be parsed");
+        assertEquals("Valid Title", result.get().title(), "Expected title to match");
     }
+
 
     @Test
     void testNumericStyle() {
@@ -165,25 +170,18 @@ class CitationStyleTest {
 
         Optional<CitationStyle.StyleInfo> result = parseStyleInfo(filename, content);
 
-        assertTrue(result.isPresent(), "Expected valid style info to be parsed");
-        assertEquals("Numeric Style", result.get().title(), "Expected title to match");
         assertTrue(result.get().isNumericStyle(), "Expected numeric style");
     }
 
+
     @Test
-    void testParseStyleInfo() {
-        // Mockovanie StyleInfo
-        CitationStyle.StyleInfo mockStyleInfo = mock(CitationStyle.StyleInfo.class);
-        when(mockStyleInfo.title()).thenReturn("Numeric Style");
-        when(mockStyleInfo.isNumericStyle()).thenReturn(true);
+    void testInvalidStyleInfo() {
+        String content = "<style><info></info></style>"; // Missing title and bibliography
+        String filename = "invalid-style.csl";
 
-        // Simulujeme, že parseStyleInfo vráti validné hodnoty
-        Optional<CitationStyle.StyleInfo> result = Optional.of(mockStyleInfo);
+        Optional<CitationStyle.StyleInfo> result = parseStyleInfo(filename, content);
 
-        
-        assertTrue(result.isPresent(), "Expected valid StyleInfo");
-        assertEquals("Numeric Style", result.get().title(), "Expected title to match");
-        assertTrue(result.get().isNumericStyle(), "Expected numeric style");
+        assertFalse(result.isPresent(), "Expected no valid style info to be parsed");
     }
 
     @Test
@@ -195,11 +193,10 @@ class CitationStyleTest {
 
         // Simulujeme, že createCitationStyleFromSource vráti platný CitationStyle
         Optional<CitationStyle> result = CitationStyle.createCitationStyleFromSource(mockInputStream, "apa.csl");
-
+        
         assertTrue(result.isPresent(), "Expected CitationStyle to be created from source");
-        assertEquals("APA Style", result.get().getTitle(), "Expected title to match");  
+        assertEquals("APA Style", result.get().getTitle(), "Expected title to match");
         assertFalse(result.get().isNumericStyle(), "Expected non-numeric style");
         assertEquals("apa.csl", result.get().getFilePath(), "Expected correct file path");
     }
-
 }
