@@ -176,7 +176,7 @@ class CitationStyleTest {
 
     @Test
     void testInvalidStyleInfo() {
-        String content = "<style><info></info></style>"; // Missing title and bibliography
+        String content = "<style><info></info></style>";
         String filename = "invalid-style.csl";
 
         Optional<CitationStyle.StyleInfo> result = parseStyleInfo(filename, content);
